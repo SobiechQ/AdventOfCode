@@ -9,6 +9,7 @@ import java.nio.BufferOverflowException;
 import java.sql.Connection;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.MatchResult;
@@ -77,22 +78,25 @@ public class Main {
                 arr[i] = booleans.get(i);
             return arr;
         }));
+        Map<String, Integer> mapTimes = Arrays.stream(pointers).collect((Supplier<Map<String, Integer>>) HashMap::new, (stringIntegerMap, s) -> stringIntegerMap.putIfAbsent(s, 0), (stringIntegerMap, stringIntegerMap2) -> {});
         do{
-            boolean boolPointerArr = boolLeftInstructions[(count++)%boolLeftInstructions.length];
-//            System.out.println("INSTRUCTION [" + boolPointerArr + "], POINTERS " + pointers);
+            boolean boolPointerArr = boolLeftInstructions[(count)%boolLeftInstructions.length];
             for (int i = 0; i < pointers.length ; i++)
                 pointers[i]=directionsMap.get(pointers[i]).get(boolPointerArr ? 0:1);
+            if (Arrays.stream(pointers).filter(s->s.getBytes()[2]=='Z').count() == 1){
+                String tmp = Arrays.stream(pointers).filter(s->s.getBytes()[2]=='Z').findAny().get();
+                if (mapTimes.get(tmp) == 0)
+                    mapTimes.put(tmp, -count);
 
-//            if (count>100){
-//                pointers.set(0, "AAZ");
-//                pointers.set(1, "BBZ");
-//                pointers.set(2, "CCZ");
-//                pointers.set(3, "DDZ");
-//                pointers.set(4, "EEZ");
-//                pointers.set(5, "FFZ");
-//            }
-            if (count < 0)
-                throw new BufferOverflowException();
+                else {
+                    int finalCount = count;
+                    mapTimes.computeIfPresent(tmp, (s, integer) -> integer + finalCount);
+                }
+            }
+
+
+
+        count++;
         }while (!Arrays.stream(pointers).allMatch(s->s.getBytes()[2]=='Z'));
         System.out.println("END POINTERS " + Arrays.toString(pointers) + ", COUNT [" + count + "]");
 
