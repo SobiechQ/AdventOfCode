@@ -1,4 +1,4 @@
-package sobiech;
+package Day8;
 
 import java.io.*;
 import java.net.MalformedURLException;
