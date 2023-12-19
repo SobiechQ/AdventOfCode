@@ -10,24 +10,24 @@ import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
-        try (var stream = new BufferedReader(new FileReader("src/main/java/Day4/input"))){
-            List<String> strings = stream.lines().toList();
-            var a = strings.stream()
-                    .map(s->s.replaceAll(" +", " "))
-                    .map(s->s.split(" \\| "))
-                    .map(s->new String[]{s[0].split(": ")[1], s[1]})
-                    .map(s->List.of(
+        try (var stream = new BufferedReader(new FileReader("src/main/java/Day4/input")).lines()){
+            long start = System.currentTimeMillis();
+            System.out.println(stream
+//                    .parallel()
+                    .map(s -> s.replaceAll(" +", " "))
+                    .map(s -> s.split(" \\| "))
+                    .map(s -> new String[]{s[0].split(": ")[1], s[1]})
+                    .map(s -> List.of(
                             Arrays.stream(s[0].split(" ")).map(Integer::parseInt).toList(),
                             Arrays.stream(s[1].split(" ")).map(Integer::parseInt).toList()
                     ))
-                    .collect((Supplier<List<List<Set<Integer>>>>) ArrayList::new,
-                            (lists, lists2) -> lists.add(List.of(
-                                    new HashSet<>(lists2.get(0)),
-                                    new HashSet<>(lists2.get(1))
-                            )),
-                            (lists, lists2) -> {}
-                    );
-            a.forEach(System.out::println);
+                    .map(l -> l.getFirst().stream().filter(i -> l.getLast().contains(i)).count())
+                    .mapToLong(i -> i)
+                    .filter(i -> i != 0)
+                    .map(i -> (long) Math.pow(2, i - 1))
+                    .sum());
+            long finish = System.currentTimeMillis();
+            System.out.println(finish - start);
         } catch (IOException e) {
             e.printStackTrace();
         }
